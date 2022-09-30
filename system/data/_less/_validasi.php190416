@@ -1,0 +1,266 @@
+<?php
+	error_reporting(0);
+	$page = isset($_POST['page']) ? $_POST['page'] : 1;
+	$rp = isset($_POST['rp']) ? $_POST['rp'] : 10;
+	$sortname = isset($_POST['sortname']) ? $_POST['sortname'] : 'TglPengajuan';
+	$sortorder = isset($_POST['sortorder']) ? $_POST['sortorder'] : 'desc';
+	$query = isset($_POST['query']) ? $_POST['query'] : false;
+
+	require_once ('../inc/conn.php');
+
+	$qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
+	$page = $_POST['page'];
+	$rp = $_POST['rp'];
+	$sortname = $_POST['sortname'];
+	$sortorder = $_POST['sortorder'];
+	if (!$sortname) $sortname = 'TglPengajuan';
+	if (!$sortorder) $sortorder = 'desc';
+	$IdUser = isset($_REQUEST['IdUser']) ? $_REQUEST['IdUser'] : null;
+	$level = isset($_REQUEST['level']) ? $_REQUEST['level'] : null;
+	$NoBuktiPengajuan = isset($_REQUEST['NoBuktiPengajuan']) ? $_REQUEST['NoBuktiPengajuan'] : null;
+	$namaVendor = isset($_REQUEST['namaVendor']) ? $_REQUEST['namaVendor'] : null;
+	$FP = isset($_REQUEST['FP']) ? $_REQUEST['FP'] : null;
+	$Status = isset($_REQUEST['Status']) ? $_REQUEST['Status'] : null;
+	$startDate = isset($_REQUEST['startDate']) ? $_REQUEST['startDate'] : null;
+	$endDate = isset($_REQUEST['endDate']) ? $_REQUEST['endDate'] : null;
+	$sort = "ORDER BY $sortname $sortorder";
+
+	if ($NoBuktiPengajuan!='') {
+		$nobukti=" and b.NoBuktiPengajuan like '%".$NoBuktiPengajuan."%'";
+	} else {
+		$nobukti="";
+	}
+
+	if ($startDate!='' and $endDate!='') {
+		$tanggal=" and TglPengajuan BETWEEN '".date('Y-m-d', strtotime($_REQUEST['startDate']))."' and '".date('Y-m-d', strtotime($_REQUEST['endDate']))."'";
+	} else {
+		$tanggal="";
+	}
+
+	if ($IdUser!='') {
+		$area = "and a.KodeDealer in (select KodeDealer from sys_userarea where IdUser='".$IdUser."')";
+	} else {
+		$area="";
+	}
+
+	// if ($level=='Kasi') {
+	// 	$level = "and idStat = '1'";
+	// } else if ($level=='ADH') {
+	// 	$level = "and idStat = '2' and ValKasi='Accept'";
+	// } else if ($level=='Kacab') {
+	// 	$level = "and idStat = '3' and ValADH='Accept'";
+	// } else if ($level=='OM') {
+	// 	$level = "and idStat = '4' and ValKacab='Accept'";
+	// } else {
+	// 	$level = "";
+	// }
+
+	if ($level=='Kasi') {
+		$tbl = "verifKasi";
+		$fld = "ValKasi";
+	} else if ($level=='ADH') {
+		$tbl = "verifAdh";
+		$fld = "ValAdh";
+	} else if ($level=='Kacab') {
+		$tbl = "verifKacab";
+		$fld = "ValKacab";
+	} else if ($level=='OM') {
+		$tbl = "verifOM";
+		$fld = "ValOM";
+	} else {
+		$level = "";
+	}
+	
+	if (!$page) $page = 1;
+	if (!$rp) $rp = 10;
+
+	$start = (($page-1) * $rp);
+	
+	$month = array('01' => 'Januari','02' => 'Februari','03' => 'Maret','04' => 'April','05' => 'Mei','06' => 'Juni','07' => 'Juli','08' => 'Agustus','09' => 'September','10' => 'Oktober','11' => 'Nopember','12' => 'Desember');
+	$month2 = array('01' => 'Jan','02' => 'Feb','03' => 'Mar','04' => 'Apr','05' => 'Mei','06' => 'Jun','07' => 'Jul','08' => 'Ags','09' => 'Sep','10' => 'Okt','11' => 'Nov','12' => 'Dsm');
+	
+	header("Content-type: text/xml");
+	$xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+	$xml .= "<rows>";
+	$xml .= "<page>$page</page>";
+
+	// $sql2 = "select top $rp NoPengajuan,TglPengajuan,NoBuktiPengajuan,KodeAkun,namaAkun,Nominal,DppJasa,Keterangan,WithPPN,NPWP,FP,userEntry,KodeDealer,Status,idStat,ValKasi,Ppn
+	// 	from DataPengajuan a
+	// 	inner join mst_status b on a.idStat=b.idStatus
+	// 	where NoBuktiPengajuan not in (
+	// 		select top $start NoBuktiPengajuan from DataPengajuan a
+	// 		inner join mst_status b on a.idStat=b.idStatus
+	// 		where NoBuktiPengajuan=NoBuktiPengajuan and idStat<>'6' $nobukti $tanggal $area $level $sort
+	// ) and idStat<>'6' $nobukti $tanggal $area $level $sort";
+
+	$sql2 = "
+		select top $rp NoPengajuan,TglPengajuan,b.NoBuktiPengajuan,KodeAkun,namaAkun,Nominal,DppJasa,Keterangan,WithPPN,NPWP,FP,userEntry,b.KodeDealer,Status,idStat,a.[$fld],Ppn from [$tbl] a 
+		inner join DataPengajuan b on a.nobuktipengajuan=b.nobuktipengajuan and a.KodeDealer=b.KodeDealer
+		inner join mst_status c on b.idStat=c.idStatus and isnull(a.[$fld],'')=''
+		where idStat<>'6' and NoPengajuan not in (
+			select top $start NoPengajuan from [$tbl] a 
+			inner join DataPengajuan b on a.nobuktipengajuan=b.nobuktipengajuan and a.KodeDealer=b.KodeDealer
+			inner join mst_status c on b.idStat=c.idStatus
+			where idStat<>'6' and isnull(a.[$fld],'')='' $nobukti $tanggal $area $sort
+	) $nobukti $tanggal $area $sort";
+
+	// echo $sql2;
+	$rsl2 = mssql_query($sql2,$conns);
+	$rows = array();
+	while ($row = mssql_fetch_array($rsl2)) {
+		$rows[] = $row;
+	}
+	
+	$totalRow = mssql_num_rows(mssql_query("select NoPengajuan from [$tbl] a 
+			inner join DataPengajuan b on a.nobuktipengajuan=b.nobuktipengajuan and a.KodeDealer=b.KodeDealer
+			inner join mst_status c on b.idStat=c.idStatus
+			where idStat<>'6' and isnull(a.[$fld],'')='' $nobukti $tanggal $area $sort",$conns));
+
+	$no=1;
+	foreach($rows as $row_jenis) {
+		$KodeDealer = $row_jenis['KodeDealer'];
+		include '../inc/koneksi.php';
+		if ($row_jenis['WithPPN']=='1') { $ppn = "Yes"; } else { $ppn = "No"; }
+		if ($msg=='0') {
+			$total = "0";
+		} else if ($msg=='1') {
+			$total = "1";
+		} else if (!mssql_select_db("[$table]",$connCab)) {
+			$total = "2";
+		} else if ($msg=='3') {
+			$acc = "ACC".$kodecabang;
+			$ra = "RA".$kodecabang;
+			$sql3 = "
+				SELECT Tahun,a.Kodegl, a.Namagl,Jan,Feb,Mar,Apr,Mei,Jun,
+				case when ISNULL(julR,0)=0 then Jul else julR end as Jul,
+				case when ISNULL(AgsR,0)=0 then Ags else AgsR end as Ags,
+				case when ISNULL(SepR,0)=0 then Sep else SepR end as Sep,
+				case when ISNULL(OktR,0)=0 then Okt else OktR end as Okt,
+				case when ISNULL(NovR,0)=0 then Nov else NovR end as Nov,
+				case when ISNULL(DsmR,0)=0 then Dsm else DsmR end as Dsm,
+			";
+				for ($a=1; $a <= 12; $a++) { 
+					if (strlen($a)==1) { $hm = "0".$a; } else { $hm = $a; }
+					$test = $month2[$hm];
+					if (mssql_select_db("[$acc-".$tahun."".$hm."]",$connCab)) {
+						$sql3 .= "
+							(
+								SELECT Case 
+								When (G.Kategori in ('B','C') or (G.Kodegl < '40000000' and G.Typerek = '19')) then (G.JBulanIni)*-1
+								When (G.Kategori = 'A') then (G.JBulanIni)
+								When (G.Kategori in ('D','G') or (G.Kodegl >= '40000000' and G.Typerek = '19')) then (G.JBulanIni)*-1
+								When (G.Kategori in ('E','F','H')) then (G.JBulanIni)
+								End as realMei
+								from [$acc-".$tahun."".$hm."]..glmst G
+								inner join [$ra]..ra F on G.KodeGl=F.KodeGl
+								where G.Kodegl = a.Kodegl and Tahun=b.Tahun
+							) as real$test,
+						";
+					} else {
+						$sql3 .= "'-' as real$test,";
+					}
+				}
+			$sql3 .="
+				NUll as selesai
+				from [$table]..glmst a
+				inner join [$ra]..ra b on a.KodeGl=b.KodeGl
+				where a.Kodegl = '".$row_jenis['KodeAkun']."' and Tahun='".$tahun."'
+			";
+			// echo $sql3;
+			$result = mssql_query($sql3,$connCab);
+			$rowz = mssql_fetch_array($result);
+			$rapbThun = 0;
+			$realThun = 0;
+			for ($a=1; $a <= 12; $a++) { 
+				if (strlen($a)==1) { $hm = "0".$a; } else { $hm = $a; }
+				$test2 = $month2[$hm];
+				$rapbThun += round($rowz[$test2]);
+				if ($rowz["real".$test2]=='-') {
+					$realThun += 0;
+					$real_ = '-';
+				} else {
+					$realThun += round($rowz["real".$test2]);
+					$real_ = number_format($rowz["real".$test2],0,",",".");
+				}
+			}
+
+			$rapbBln = $rowz[$month2[$bln]];
+			$realBln = $rowz["real".$month2[$bln]];
+			$rapbOg = 0;
+			for ($i=1; $i <= $bln; $i++) { 
+				if (strlen($i)==1) { $hm = "0".$i; } else { $hm = $i; }
+				$rapbOg += $rowz[$month2[$hm]];
+			}
+			$realOg = 0;
+			for ($i=1; $i <= $bln; $i++) { 
+				if (strlen($i)==1) { $hm = "0".$i; } else { $hm = $i; }
+				$realOg = $rowz["real".$month2[$hm]];
+			}
+		}
+		if ($row_jenis['idStat']=='2' and $row_jenis['ValKasi']=='Accept') {
+			$stat = 1;
+		} else {
+			$stat = 0;
+		}
+		$dpp = $row_jenis['DppJasa'];;
+		$pph = ($row_jenis['DppJasa']*2)/100;
+		$id = $row_jenis['NoPengajuan'];
+		$xml .= "<row id='".$no."'>";
+		$xml .= "<cell><![CDATA[<input type='checkbox' id='chk_".$id."' value='".$id."' name='id[]' />]]></cell>";
+		$xml .= "<cell><![CDATA[<input type='checkbox' class='jancuk' id='".$id."' value='Accept' name='validasi[".$id."][]' onclick='show(this.id);' />]]></cell>";
+		$xml .= "<cell><![CDATA[<input type='checkbox' class='jancuk' id='".$id."' value='Reject' name='validasi[".$id."][]' onclick='show(this.id);' />]]></cell>";
+		$xml .= "<cell><![CDATA[<input type='text' class='jancuk' id='alasanReject_".$id."' />]]></cell>";
+		$xml .= "<cell><![CDATA[
+				<input type='text' class='jancuk' id='cekPph_".$id."' value='".$stat."'/><br/>
+				<input type='text' class='jancuk' id='isPph_".$id."' value='0'/><br/>
+				<input type='text' class='jancuk' id='PphProsen_".$id."' value='2'/><br/>
+				<input type='text' class='jancuk' id='DppRp_".$id."' value='".number_format($dpp,0,",",".")."'/><br/>
+				<input type='text' class='jancuk' id='PphRp_".$id."' value='".number_format($pph,0,",",".")."'/><br/>
+				<input type='text' class='jancuk' id='PpnRp_".$id."' value='".number_format($row_jenis['Ppn'],0,",",".")."'/>
+		]]></cell>";
+		$xml .= "<cell><![CDATA[".datenull($row_jenis['TglPengajuan'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['NoBuktiPengajuan'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['KodeAkun'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['namaAkun'])."]]></cell>";
+
+		$xml .= "<cell><![CDATA[";
+			$xml .="<div style='text-align: right;padding:0'>".number_format($rapbBln,0,",",".")."</div>";
+			$xml .="<input type='hidden' id='rapbBln_".$no."' value='".$rapbBln."'>";
+		$xml .="]]></cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($realBln,0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($rapbOg,0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($realOg,0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($rapbThun,0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($realThun,0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell><![CDATA[";
+			$xml .="<div style='text-align: right;padding:0'>".number_format($row_jenis['Nominal'],0,",",".")."</div>";
+			$xml .="<input type='hidden' id='nominal_".$no."' value='".$row_jenis['Nominal']."'>";
+		$xml .="]]></cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($row_jenis['DppJasa'],0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['Keterangan'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($ppn)."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['NPWP'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['FP'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['userEntry'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['Status'])."]]></cell>";
+		$xml .= "</row>";
+		$no++;
+	}
+	$xml .= "<total>$totalRow</total>";
+	$xml .= "</rows>";
+	echo $xml;
+	// echo "Cukkk";
+?>

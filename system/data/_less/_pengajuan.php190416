@@ -1,0 +1,122 @@
+<?php
+	$page = isset($_POST['page']) ? $_POST['page'] : 1;
+	$rp = isset($_POST['rp']) ? $_POST['rp'] : 10;
+	$sortname = isset($_POST['sortname']) ? $_POST['sortname'] : 'TglPengajuan';
+	$sortorder = isset($_POST['sortorder']) ? $_POST['sortorder'] : 'desc';
+	$query = isset($_POST['query']) ? $_POST['query'] : false;
+	$qtype = isset($_POST['qtype']) ? $_POST['qtype'] : false;
+
+	require_once ('../inc/conn.php');
+
+	$page = $_POST['page'];
+	$rp = $_POST['rp'];
+	$sortname = $_POST['sortname'];
+	$sortorder = $_POST['sortorder'];
+
+	if (!$sortname) $sortname = 'TglPengajuan';
+	if (!$sortorder) $sortorder = 'desc';
+	$IdUser = isset($_REQUEST['IdUser']) ? $_REQUEST['IdUser'] : null;
+	$NoBuktiPengajuan = isset($_REQUEST['NoBuktiPengajuan']) ? $_REQUEST['NoBuktiPengajuan'] : null;
+	$namaVendor = isset($_REQUEST['namaVendor']) ? $_REQUEST['namaVendor'] : null;
+	$FP = isset($_REQUEST['FP']) ? $_REQUEST['FP'] : null;
+	$Status = isset($_REQUEST['Status']) ? $_REQUEST['Status'] : null;
+	$startDate = isset($_REQUEST['startDate']) ? $_REQUEST['startDate'] : null;
+	$endDate = isset($_REQUEST['endDate']) ? $_REQUEST['endDate'] : null;
+	$sort = "ORDER BY $sortname $sortorder";
+
+	if ($NoBuktiPengajuan!='') {
+		$nobukti=" and NoBuktiPengajuan like '%".$NoBuktiPengajuan."%'";
+	} else {
+		$nobukti="";
+	}
+
+	if ($namaVendor!='') {
+		$nama_vendor=" and namaVendor like '%".$NoAFI."%'";
+	} else {
+		$nama_vendor="";
+	}
+
+	if ($FP!='') {
+		$no_fp=" and FP like '%".$NamaFaktur."%'";
+	} else {
+		$no_fp="";
+	}
+
+	if ($Status!='') {
+		$sta_tus=" and Status = '%".$Status."%'";
+	} else {
+		$sta_tus="";
+	}
+
+	if ($startDate!='' and $endDate!='') {
+		$tanggal=" and TglPengajuan BETWEEN '".date('Y-m-d', strtotime($_REQUEST['startDate']))."' and '".date('Y-m-d', strtotime($_REQUEST['endDate']))."'";
+	} else {
+		$tanggal="";
+	}
+
+	if ($IdUser!='') {
+		$area = "and KodeDealer in (select KodeDealer from sys_userarea where IdUser='".$IdUser."')";
+	} else {
+		$area="";
+	}
+	
+	if (!$page) $page = 1;
+	if (!$rp) $rp = 10;
+
+	$start = (($page-1) * $rp);
+	
+	$sql = "select top $rp NoPengajuan,TglPengajuan,NoBuktiPengajuan,KodeAkunBank,namaBank,
+			NoRekening,NamaRekening,KodeAP as kodeVendor,namaVendor,KodeAkun,Nominal,DppJasa,FP,NPWP,Keterangan,Status,
+			ISNULL(ValKasi,'') as ValKasi,ISNULL(ValADH,'') as ValADH,ISNULL(ValKacab,'') as ValKacab,ISNULL(ValOM,'') as ValOM,idStat
+			from DataPengajuan a
+			inner join mst_status b on a.idStat=b.idStatus
+			where NoBuktiPengajuan not in (
+				select top $start NoBuktiPengajuan from DataPengajuan a
+				inner join mst_status b on a.idStat=b.idStatus
+				where NoBuktiPengajuan=NoBuktiPengajuan $nobukti $nama_vendor $no_fp $sta_tus $tanggal $area $sort
+		) $nobukti $nama_vendor $no_fp $sta_tus $tanggal $area $sort";
+	$result = mssql_query($sql);
+	$total = mssql_num_rows(mssql_query("select NoBuktiPengajuan from DataPengajuan 
+		where NoBuktiPengajuan=NoBuktiPengajuan $nobukti $nama_vendor $no_fp $sta_tus $tanggal $area $sort"));
+	$rows = array();
+	while ($row = mssql_fetch_array($result)) {
+		$rows[] = $row;
+	}
+
+	header("Content-type: text/xml");
+	$xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+	$xml .= "<rows>";
+	$xml .= "<page>$page</page>";
+	$xml .= "<total>$total</total>";
+	foreach($rows as $row_jenis) {
+		if ($row_jenis['idStat']=='5') {
+			$dis = "disabled";
+		} else {
+			$dis = "";
+		}
+		$xml .= "<row id='".$row_jenis['NoPengajuan']."'>";
+		$xml .= "<cell><![CDATA[<input type='checkbox' id='chk-1' name='id[]' value='".$row_jenis['NoPengajuan']."' ".$dis.">]]></cell>";
+		$xml .= "<cell><![CDATA[".datenull($row_jenis['TglPengajuan'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['NoBuktiPengajuan'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['KodeAkunBank'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['namaBank'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['NoRekening'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['NamaRekening'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['kodeVendor'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['namaVendor'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['KodeAkun'])."]]></cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($row_jenis['Nominal'],0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell>";
+			$xml .="<![CDATA[<div style='text-align: right;padding:0'>".number_format($row_jenis['DppJasa'],0,",",".")."</div>]]>";
+		$xml .="</cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['FP'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['NPWP'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['Keterangan'])."]]></cell>";
+		$xml .= "<cell><![CDATA[".utf8_encode($row_jenis['Status'])."]]></cell>";
+		$xml .= "</row>";
+	}
+	$xml .= "</rows>";
+	echo $xml;
+?>

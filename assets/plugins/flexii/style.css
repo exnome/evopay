@@ -1,0 +1,82 @@
+.flexigrid div.fbutton .add {
+	background: #4f8edc;
+	border: 1px solid #4f8edc;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .delete {
+	background: #e73c3c;
+	border: 1px solid #e73c3c;
+	padding: 2px 10px 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .edit {
+	background: #85c744;
+	border: 1px solid #85c744;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .pdf {
+	background: #ef8a80;
+	border: 1px solid #ef8a80;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .search {
+	background: #23d1d1;
+	border: 1px solid #23d1d1;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .excel {
+	background: #aad178;
+	border: 1px solid #aad178;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .reset {
+	background: #f1c40f;
+	border: 1px solid #f1c40f;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+.flexigrid div.fbutton .detail {
+	background: #c0392b;
+	border: 1px solid #c0392b;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+
+.flexigrid div.fbutton .approve {
+	background:#0066FF;
+	border: 1px solid #0066FF;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+
+
+.flexigrid div.fbutton .reject {
+	background:#FF3333;
+	border: 1px solid #FF3333;
+	padding: 2px 10px;
+	color: #fff;
+	border-radius: 1px;
+}
+

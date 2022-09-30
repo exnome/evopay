@@ -1,0 +1,16 @@
+2020-09-10 10:58:48: <br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrspec.php</b> on line <b>550</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />
+<br />
+<b>Warning</b>:  gzuncompress() [<a href='function.gzuncompress'>function.gzuncompress</a>]: data error in <b>C:\AppServ\www\evopay\assets\qrcode\phpqrcode\qrmask.php</b> on line <b>133</b><br />

@@ -1,0 +1,19 @@
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    border: 0px solid;
+    text-align: left;
+    padding: 5px;
+    border-collapse: collapse;
+}
+.gradient {
+	border:1px solid #000; 
+	padding-left: 40px;
+	padding-right: 20px;
+	padding-bottom: 120px;
+}

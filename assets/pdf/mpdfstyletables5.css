@@ -1,0 +1,39 @@
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    border: 0px solid;
+    text-align: left;
+    padding: 5px;
+    border-collapse: collapse;
+}
+.gradient {
+	border:1px solid #000; 
+	padding-left: 40px;
+	padding-right: 20px;
+	padding-bottom: 120px;
+}
+
+#head{padding:0px 10px;border:1px dotted;}
+#head_bg{padding:0px 10px;border:1px dotted;background: #ccc;}
+#head_r{padding:0px 10px;border:1px dotted;text-align: right;}
+#head_red{padding:0px 10px;border: 1px solid red;text-align: right;}
+
+
+#body{padding: 0px 10px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;}
+#body_c1{padding: 0px 10px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;border-right-width: 0px;text-align: center;}
+#body_c2{padding: 0px 10px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;border-left-width: 0px;width: 80px;}
+#body_c3{padding: 0px 10px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;border-right-width: 0px;text-align: right;}
+#body_c2b{padding: 0px 10px;border: 1px dotted;border-top-width: 0px;border-left-width: 0px;width: 80px;}
+#body_c3b{padding: 0px 10px;border: 1px dotted;border-top-width: 0px;border-right-width: 0px;text-align: right;}
+#body_r{padding: 0px 10px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;text-align: right}
+#body_rb{padding: 0px 10px;border: 1px dotted;border-top-width: 0px;text-align: right}
+#body_L{padding: 0px;padding-left: 20px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;width: 150px}
+#body_Lb{padding: 0px;padding-left: 20px;border: 1px dotted;border-top-width: 0px;width: 150px}
+#body_L40{padding: 0px;padding-left: 40px;border: 1px dotted;border-bottom-width: 0px;border-top-width: 0px;width: 150px}
+#body_L40b{padding: 0px;padding-left: 40px;border: 1px dotted;border-top-width: 0px;width: 150px}
+#space{padding:0px;border: 0px dotted;width:5px}

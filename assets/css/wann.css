@@ -1,0 +1,15 @@
+.btn-more { padding: 3.7px 5px; }
+.btn-more2 { padding: 4.5px 10px }
+.resize > .modal-dialog { width: 300px; !important; }
+.resizeDetail > .modal-dialog { width: 709px; !important; }
+.resizeNota > .modal-dialog { width: 709px;margin: 50px auto; !important; }
+.spinner{
+    background-color: #fff;
+    background-image: url("system/view/LoaderIcon.gif");
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-origin: content-box;
+    background-size: 14px;
+    background-position: right;
+}
